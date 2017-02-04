@@ -7,57 +7,52 @@
 
 using namespace std;
 
-
-bool brute_force_search(vector<int>&& lhs, vector<int>&& choices, const int d)
-{
-        if(lhs.size() == 3)
-                return accumulate(lhs.cbegin(), lhs.cend(), 0) == d;
-        // Should I check this corner case?
-        if(choices.size() + lhs.size() < 3)
-                return false;
-        for(auto i = choices.cbegin(); i != choices.cend(); ++i) {
-                auto v(choices);
-                auto new_lhs(lhs);
-
-                v.erase(remove(v.begin(), v.end(), *i), v.end());
-                new_lhs.emplace_back(*i);
-                if(brute_force_search(move(new_lhs), move(v), d))
+bool brute_force_search(const vector<int>& s, int& ans) {
+    for(auto i = s.crbegin(); i != s.crend(); ++i) {
+        auto const d = *i;
+        for(auto j = s.cbegin(); j != s.cend(); ++j) {
+            auto const a = *j;
+            if(d == a)
+                continue;
+            for(auto k = j + 1; k != s.cend(); ++k) {
+                auto const b = *k;
+                if(d == b)
+                    continue;
+                for(auto m = k + 1; m != s.cend(); ++m) {
+                    auto const c = *m;
+                    if(d == c)
+                        continue;
+                    if(d == a + b + c) {
+                        ans = d;
                         return true;
+                    }
+                }
+            }
         }
-        return false;
+    }
+    return false;
 }
 
-int main()
-{
-        // 1 <= number_of_elements <= 1000
-        int number_of_elements {};
-        cin >> number_of_elements;
+int main() {
+    // 1 <= number_of_elements <= 1000
+    int number_of_elements {};
+    cin >> number_of_elements;
+    while(number_of_elements) {
+        vector<int> s;
+        s.reserve(number_of_elements);
         while(number_of_elements) {
-                vector<int> s;
-                s.reserve(number_of_elements);
-                while(number_of_elements) {
-                        int j;
-                        cin >> j;
-                        s.push_back(j);
-                        --number_of_elements;
-                }
-                bool found = false;
-                for(auto i = s.crbegin(); i != s.crend(); ++i) {
-                        auto d = *i;
-                        auto v = s;
-                        v.erase(remove(v.begin(), v.end(), d), v.end());
-                        if(brute_force_search(vector<int>(), move(v), d)) {
-                                cout << d << endl;
-                                found = true;
-                                break;
-                        }
-                        // for(auto const& i : v)
-                        //         cout << i << " ";
-                        // cout << endl;
-                }
-                if(!found)
-                        cout << "no solution" << endl;
-                cin >> number_of_elements;
+            int j;
+            cin >> j;
+            s.push_back(j);
+            --number_of_elements;
         }
-        return 0;
+        sort(s.begin(), s.end());
+        int d;
+        if(brute_force_search(s, d))
+            cout << d << endl;
+        else
+            cout << "no solution" << endl;
+        cin >> number_of_elements;
+    }
+    return 0;
 }
